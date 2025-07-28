@@ -3,10 +3,15 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 
 //set up express app
 const app = express();
+
+//Allows your frontend to talk to the backend
+app.use(cors());  
+
 
 //connect to mongodb
 mongoose.connect(process.env.MONGO_URI)
