@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>kickz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="./style.css">
+  
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Search Shoes by Category</h1>
+
+    <div class="input-group mb-4">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Enter category (e.g. sneakers, boots, loafers, sandals, heels)"
+        id="categoryInput"
+      >
+      <button class="btn btn-primary" onclick="searchShoes()">Search</button>
+    </div>
+
+    <div id="errorMessage" class="alert alert-danger d-none"></div>
+    <div id="results" class="row"></div>
+  </div>
+
+  <!-- Bootstrap JS CDN (optional for interactivity) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <script>
+    async function searchShoes() {
+      const category = document.getElementById('categoryInput').value.trim();
+      const resultsDiv = document.getElementById('results');
+      const errorDiv = document.getElementById('errorMessage');
+      resultsDiv.innerHTML = '';
+      errorDiv.classList.add('d-none');
+
+      if (!category) {
+        errorDiv.textContent = 'Please enter a category.';
+        errorDiv.classList.remove('d-none');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/shoes?category=${category}`);
+        if (!response.ok) {
+          throw new Error('Error fetching shoes');
+        }
+
+        const shoes = await response.json();
+        if (shoes.length === 0) {
+          errorDiv.textContent = 'No shoes found for this category.';
+          errorDiv.classList.remove('d-none');
+          return;
+        }
+
+        shoes.forEach(shoe => {
+          const card = `
+            <div class="col-md-4 mb-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">${shoe.name}</h5>
+                  <p class="card-text">
+                    <strong>Brand:</strong> ${shoe.brand}<br>
+                   <strong>Price:</strong> ₦${shoe.price.toLocaleString()}<br>
+                    <strong>Category:</strong> ${shoe.category}
+                  </p>
+                </div>
+              </div>
+            </div>
+          `;
+          resultsDiv.innerHTML += card;
+        });
+      } catch (err) {
+        errorDiv.textContent = 'An error occurred while fetching shoes.';
+        errorDiv.classList.remove('d-none');
+      }
+    }
+  </script>
+</body>
+</html>
